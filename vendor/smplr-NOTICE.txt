@@ -1,0 +1,5 @@
+smplr 1.1.0 (npm, https://github.com/danigb/smplr)
+File: smplr-1.1.0.mjs = package/dist/index.mjs (unchanged)
+License: MIT (package.json "license" and README "## License"). The repository has no LICENSE file (checked 2026-10-18).
+Author (package.json): danigb
+Samples are fetched at runtime from their own hosts (SplendidGrandPiano, gleitz midi-js-soundfonts, etc.) and are not bundled here.

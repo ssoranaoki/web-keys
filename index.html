@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Web Keys</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="title">Web Keys</h1>
+    <div class="status" id="status" data-state="waiting">
+      <span class="status-dot"></span>
+      <span class="status-text" id="status-text">MIDI を準備しています…</span>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="instruments" id="instruments" aria-label="楽器"></section>
+
+    <section class="play">
+      <div class="wheels">
+        <div class="wheel" id="wheel-pitch" data-center="true">
+          <div class="wheel-track"><div class="wheel-thumb"></div></div>
+          <div class="wheel-label">PITCH BEND</div>
+        </div>
+        <div class="wheel" id="wheel-mod">
+          <div class="wheel-track"><div class="wheel-thumb"></div></div>
+          <div class="wheel-label">MODULATION</div>
+        </div>
+      </div>
+
+      <div class="knobs">
+        <div class="knob-group">
+          <div class="knob-label">VOLUME</div>
+          <div class="knob" id="knob-volume" style="--value: 0.8"><div class="knob-mark"></div></div>
+        </div>
+        <div class="knob-group">
+          <div class="knob-label">REVERB</div>
+          <div class="knob" id="knob-reverb" style="--value: 0.3"><div class="knob-mark"></div></div>
+        </div>
+        <div class="sustain" id="sustain">SUSTAIN</div>
+      </div>
+
+      <div class="keyboard-wrap">
+        <div class="keyboard" id="keyboard" aria-label="鍵盤"></div>
+        <button type="button" class="sound-start" id="sound-start">
+          <span class="sound-start-main" id="sound-start-main">クリックして音を出す</span>
+          <span class="sound-start-sub" id="sound-start-sub">ブラウザの決まりで、最初の1回だけクリックが要ります</span>
+          <span class="sound-start-bar"><span class="sound-start-fill" id="sound-start-fill"></span></span>
+        </button>
+        <span class="range-label range-low" id="range-low">C2</span>
+        <span class="range-label range-high" id="range-high">C6</span>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

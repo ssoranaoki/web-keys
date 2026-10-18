@@ -1,0 +1,230 @@
+/* Web Keys — 案A ミニマル（docs/design.md） */
+:root {
+  --ink: #111;
+  --line: #222;
+  --muted: #666;
+  --accent: #7fa6dc;        /* 選択中の楽器 */
+  --accent-soft: #cfdff5;   /* 押した白鍵 */
+  --accent-deep: #3f5f8c;   /* 押した黒鍵 */
+  --ok: #4cbb5e;
+  --warn: #e0a030;
+  --ng: #d9534f;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: #fff;
+  color: var(--ink);
+  font-family: "Helvetica Neue", Arial, "Hiragino Sans", "Noto Sans JP", sans-serif;
+}
+
+/* ---- 上の帯 ---- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 4vw;
+  border-bottom: 1px solid #ddd;
+}
+.title { margin: 0; font-weight: 400; font-size: 30px; letter-spacing: 0.5px; }
+
+.status { display: flex; align-items: center; gap: 10px; font-size: 18px; }
+.status-dot { width: 11px; height: 11px; border-radius: 50%; background: #bbb; }
+.status[data-state="connected"] .status-dot { background: var(--ok); }
+.status[data-state="waiting"] .status-dot,
+.status[data-state="no-device"] .status-dot { background: var(--warn); }
+.status[data-state="error"] .status-dot { background: var(--ng); }
+
+.main { padding: 24px 4vw 40px; }
+
+/* ---- 楽器カード ---- */
+.instruments {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 18px;
+}
+.instrument {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 130px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 20px;
+  cursor: pointer;
+}
+.instrument:hover { background: #f5f8fc; }
+.instrument[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.instrument { position: relative; overflow: hidden; }
+/* 読み込み中のバー（カードの下の端） */
+.instrument-load {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 4px;
+  width: calc(var(--load, 0) * 100%);
+  background: var(--accent);
+  opacity: 0;
+  transition: width 120ms, opacity 200ms;
+}
+.instrument[aria-pressed="true"] .instrument-load { background: #fff; }
+.instrument[data-loading="true"] .instrument-load { opacity: 1; }
+.instrument-icon {
+  width: 70px;
+  height: 56px;
+  background: currentColor;
+  -webkit-mask: var(--icon) center / contain no-repeat;
+  mask: var(--icon) center / contain no-repeat;
+}
+
+/* ---- 演奏の段 ---- */
+.play {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin-top: 70px;
+}
+
+.wheels { display: flex; gap: 30px; }
+.wheel { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.wheel-track {
+  position: relative;
+  width: 40px;
+  height: 160px;
+  /* 目盛り */
+  background:
+    linear-gradient(var(--line), var(--line)) center / 2px 100% no-repeat,
+    repeating-linear-gradient(to bottom, #aaa 0 1px, transparent 1px 8px) left / 9px 100% no-repeat,
+    repeating-linear-gradient(to bottom, #aaa 0 1px, transparent 1px 8px) right / 9px 100% no-repeat;
+}
+.wheel-thumb {
+  position: absolute;
+  left: 50%;
+  /* --pos: 0（下）〜 1（上） */
+  top: calc((1 - var(--pos, 0)) * 100%);
+  width: 40px;
+  height: 18px;
+  transform: translate(-50%, -50%);
+  background: var(--accent);
+  border: 2px solid #4b6d9c;
+  border-radius: 3px;
+  transition: top 40ms linear;
+}
+.wheel[data-center="true"] .wheel-thumb { --pos: 0.5; }
+.wheel-label { font-size: 13px; letter-spacing: 0.5px; }
+
+.knobs { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.knob-group { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.knob-label { font-size: 13px; letter-spacing: 0.5px; }
+.knob {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--line);
+  border-radius: 50%;
+  /* --value: 0〜1 を -135°〜+135° に */
+  transform: rotate(calc(-135deg + var(--value) * 270deg));
+  cursor: ns-resize;
+  touch-action: none;
+}
+.knob:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.knob-mark {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.sustain {
+  margin-top: 6px;
+  padding: 6px 10px;
+  border: 2px solid #9db6d8;
+  border-radius: 5px;
+  font-size: 13px;
+  color: var(--muted);
+  background: #f3f7fc;
+}
+.sustain[data-on="true"] { background: var(--accent); border-color: #4b6d9c; color: #fff; }
+
+/* ---- 鍵盤 ---- */
+.keyboard-wrap { position: relative; flex: 1; min-width: 0; }
+.keyboard {
+  position: relative;
+  display: flex;
+  height: 210px;
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  user-select: none;
+}
+.key-white {
+  position: relative;
+  flex: 1;
+  border-right: 1px solid var(--line);
+  background: #fff;
+  transition: background-color 60ms;
+}
+.key-white:last-child { border-right: none; }
+.key-black {
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  height: 62%;
+  background: var(--ink);
+  border-radius: 0 0 3px 3px;
+  transition: background-color 60ms;
+}
+/* 押した鍵盤。--v は強さ（0〜1）で色の濃さを変える */
+.key-white.is-on {
+  background: color-mix(in srgb, var(--accent-soft) calc(55% + var(--v, 1) * 45%), #fff);
+  box-shadow: inset 0 0 0 1.5px #8fb1e0;
+}
+.key-black.is-on {
+  background: color-mix(in srgb, var(--accent-deep) calc(60% + var(--v, 1) * 40%), #9bbbe6);
+}
+/* 最初のクリック（音を始める）。鍵盤の上に重ねる */
+.sound-start {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.sound-start:hover { background: rgba(245, 248, 252, 0.92); }
+.sound-start-main { font-size: 24px; }
+.sound-start-sub { font-size: 14px; color: var(--muted); }
+.sound-start-bar {
+  display: none;
+  width: 40%;
+  height: 4px;
+  background: #e3eaf4;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.sound-start-fill { display: block; width: 0; height: 100%; background: var(--accent); transition: width 120ms; }
+.sound-start[data-state="loading"] { cursor: progress; }
+.sound-start[data-state="loading"] .sound-start-bar { display: block; }
+.sound-start[hidden] { display: none; }
+
+.range-label { position: absolute; bottom: 12px; font-size: 16px; pointer-events: none; z-index: 2; }
+.range-low { left: 12px; }
+.range-high { right: 12px; }
